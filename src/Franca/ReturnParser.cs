@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Franca
 {
-	public delegate IEnumerable<T> Selector<T>(Token token);
+	public delegate T Selector<out T>(Token token);
 
 	/// <summary>
 	/// Reutrns the first result from parser
@@ -11,18 +11,21 @@ namespace Franca
 	/// <typeparam name="T"></typeparam>
 	public sealed class ReturnParser<T> : IParser<T>
 	{
+		private readonly ITokenizer input;
 		private Selector<T> selector;
 
-		public ReturnParser(Selector<T> selector)
+		public ReturnParser(ITokenizer input, Selector<T> selector)
 		{
+			this.input = input;
 			this.selector = selector;
 		}
 
 		public Result<T> Parse(Token token)
 		{
-			foreach (var output in this.selector(token))
+			var result = input.Parse(token.Span);
+			if (!result.IsEmpty)
 			{
-				return Result<T>.Success(output);
+				return Result<T>.Success(this.selector(result));
 			}
 
 			return Result<T>.Fail;

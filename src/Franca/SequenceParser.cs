@@ -4,9 +4,11 @@ using System.Linq;
 
 namespace Franca
 {
+	////public delegate IEnumerable<T> SingleSelector<out T>(Token token);
+
 	public sealed class SequenceParser<T> : IParser<IReadOnlyList<T>>
 	{
-		private Selector<T> selector;
+		private readonly Selector<T> selector;
 
 		private bool ignoreFailure;
 
@@ -46,7 +48,7 @@ namespace Franca
 				}
 				else
 				{
-					accumulated.AddRange(this.selector(result));
+					accumulated.Add(this.selector(result));
 					remainderSpan = result.Remaining;
 				}
 			}
