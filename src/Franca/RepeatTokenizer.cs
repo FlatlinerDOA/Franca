@@ -10,6 +10,16 @@ namespace Franca
 
 		public RepeatTokenizer(ITokenizer input, int min = 1, int maxExclusive = int.MaxValue)
 		{
+			if (min < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(min));
+			}
+
+			if (min >= maxExclusive || maxExclusive <= 1)
+			{
+				throw new ArgumentOutOfRangeException(nameof(maxExclusive));
+			}
+
 			this.Input = input;
 			this.min = min;
 			this.maxExclusive = maxExclusive;
@@ -25,11 +35,17 @@ namespace Franca
 			{
 				if (i == this.maxExclusive)
 				{
-					return Token.Fail(span);
+					// TODO: Fail or break? return Token.Fail(span);
+					break;
 				}
 
 				var result = this.Input.Parse(remainderSpan);
-				if (result.IsEmpty)
+				if (result.IsSuccess)
+				{
+					accumulated = accumulated + result;
+					remainderSpan = result.Remaining;
+				}
+				else
 				{
 					if (i >= this.min)
 					{
@@ -39,11 +55,6 @@ namespace Franca
 					{
 						return Token.Fail(span);
 					}
-				}
-				else
-				{
-					accumulated = accumulated + result;
-					remainderSpan = result.Remaining;
 				}
 			}
 

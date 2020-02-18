@@ -14,6 +14,6 @@ namespace Franca.UnitTests
         public void DigitThenCommaMatches() => Assert.AreEqual(2, DigitThenComma.Parse("1,").Length);
 
         [TestMethod]
-        public void TwoDigitsThenCommaDoesNotMatch() => Assert.IsTrue(DigitThenComma.Parse("12,").IsEmpty);
+        public void TwoDigitsThenCommaDoesNotMatch() => Assert.IsFalse(DigitThenComma.Parse("12,").IsSuccess);
     }
 }

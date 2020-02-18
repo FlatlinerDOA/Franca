@@ -6,7 +6,7 @@ namespace Franca
 {
 	////public delegate IEnumerable<T> SingleSelector<out T>(Token token);
 
-	public sealed class SequenceParser<T> : IParser<IReadOnlyList<T>>
+	public sealed class SequenceParser<T> : IParser<T>
 	{
 		private readonly Selector<T> selector;
 
@@ -27,15 +27,19 @@ namespace Franca
 
 		public IEnumerable<ITokenizer> Inputs { get; }
 
-		public Result<IReadOnlyList<T>> Parse(Token token)
+		public IEnumerable<T> Parse(Token token)
 		{
-			var ambiguous = new List<IParser<T>>();
 			var accumulated = new List<T>();
 			var remainderSpan = token.Span;
 			foreach (var tokenizer in this.Inputs)
 			{
 				var result = tokenizer.Parse(remainderSpan);
-				if (result.IsEmpty)
+				if (result.IsSuccess)
+				{
+					accumulated.Add(this.selector(result));
+					remainderSpan = result.Remaining;
+				}
+				else
 				{
 					if (this.ignoreFailure)
 					{
@@ -43,17 +47,12 @@ namespace Franca
 					}
 					else
 					{
-						return Result<IReadOnlyList<T>>.Fail;
+						return Enumerable.Empty<T>();
 					}
-				}
-				else
-				{
-					accumulated.Add(this.selector(result));
-					remainderSpan = result.Remaining;
 				}
 			}
 
-			return Result<IReadOnlyList<T>>.Success(accumulated);
+			return accumulated;
 		}
 
 		public override string ToString() => string.Join(" ", this.Inputs.Select(i => i.ToString()));

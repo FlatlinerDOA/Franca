@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Franca
 {
@@ -20,15 +21,15 @@ namespace Franca
 			this.selector = selector;
 		}
 
-		public Result<T> Parse(Token token)
+		public IEnumerable<T> Parse(Token token)
 		{
 			var result = input.Parse(token.Span);
-			if (!result.IsEmpty)
+			if (result.IsSuccess)
 			{
-				return Result<T>.Success(this.selector(result));
+				return new[] { this.selector(result) };
 			}
 
-			return Result<T>.Fail;
+			return Array.Empty<T>();
 		}
 
 		public override string ToString() => "Return<"+ typeof(T).Name + ">";

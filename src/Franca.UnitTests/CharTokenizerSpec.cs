@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Franca.UnitTests
 {
     [TestClass]
-    public class CharParserSpec
+    public class CharTokenizerSpec
     {
 		[TestMethod]
 		public void SingleDigitChar() => Assert.AreEqual(CharTokenizer.Digit.Parse("1").Length, 1);
@@ -13,6 +13,9 @@ namespace Franca.UnitTests
 
 		[TestMethod]
 		public void MultiDigitChar() => Assert.AreEqual(1, CharTokenizer.Digit.Parse("12").Length);
+
+		[TestMethod]
+		public void AnyCharMatchesSecond() => Assert.AreEqual(1, CharTokenizer.Any('A', 'B').Parse("B").Length);
 
 		[TestMethod]
 		public void EverythingElse() 

@@ -30,7 +30,12 @@ namespace Franca
 			foreach (var parser in this.Inputs)
 			{
 				var result = parser.Parse(remainderSpan);
-				if (result.IsEmpty)
+				if (result.IsSuccess)
+				{
+					accumulated = accumulated + result;
+					remainderSpan = result.Remaining;
+				}
+				else
 				{
 					if (this.ignoreFailure)
 					{
@@ -40,11 +45,6 @@ namespace Franca
 					{
 						return Token.Fail(span);
 					}
-				}
-				else
-				{
-					accumulated = accumulated + result;
-					remainderSpan = result.Remaining;
 				}
 			}
 

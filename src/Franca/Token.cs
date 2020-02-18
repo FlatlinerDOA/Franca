@@ -4,21 +4,27 @@ namespace Franca
 {
     public ref struct Token
 	{
+		private int length;
+
 		private Token(ReadOnlySpan<char> baseSpan, int length)
 		{
 			this.Base = baseSpan;
-			this.Length = length;
+			this.length = length;
 		}
 
 		public ReadOnlySpan<char> Base;
 
-		public int Length;
+		public int Length => this.length == -1 ? 0 : this.length;
 
-		public bool IsEmpty => this.Length == 0;
+		////public bool IsEmpty => this.length < 1;
+
+		public bool IsSuccess => this.length != -1;
 
 		public ReadOnlySpan<char> Remaining => this.Base.Slice(this.Length);
 
-		public ReadOnlySpan<char> Span => this.Base.Slice(0, this.Length);
+		public ReadOnlySpan<char> Span => this.Length > 0 ? 
+			this.Base.Slice(0, this.Length) :
+			ReadOnlySpan<char>.Empty;
 
 		public static Token Success(ReadOnlySpan<char> span, int length)
 		{
@@ -27,7 +33,7 @@ namespace Franca
 
 		public static Token Fail(ReadOnlySpan<char> span)
 		{
-			return new Token(span, 0);
+			return new Token(span, -1);
 		}
 
 		public static Token operator +(Token left, Token right) 

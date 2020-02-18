@@ -20,7 +20,7 @@ namespace Franca
 			foreach (var parser in this.Choices)
 			{
 				var result = parser.Parse(span);
-				if (!result.IsEmpty)
+				if (result.IsSuccess)
 				{
 					return result;
 				}

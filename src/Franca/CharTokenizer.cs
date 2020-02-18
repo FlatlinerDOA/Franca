@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Franca
 {
@@ -19,13 +20,31 @@ namespace Franca
 			this.Name = "<" + name + ">";
 		}
 
-		public static CharTokenizer Digit = new CharTokenizer(char.IsDigit, "Digit");
+		public static CharTokenizer Any(params char[] anyChar)
+		{
+			var sb = new StringBuilder();
+			foreach (var m in anyChar)
+			{
+				if (sb.Length != 0)
+				{
+					sb.Append(", ");
+				}
 
-		public static CharTokenizer LetterOrDigit = new CharTokenizer(char.IsLetterOrDigit, "LetterOrDigit");
+				sb.Append('\'').Append(m).Append('\'');
+			}
 
-		public static CharTokenizer Whitespace = new CharTokenizer(char.IsWhiteSpace, "Whitespace");
+			return new CharTokenizer(c => Array.IndexOf(anyChar, c) != -1, sb.ToString());
+		}
 
-		public static CharTokenizer LowSurrogate = new CharTokenizer(char.IsLowSurrogate, "LowSurrogate");
+		public static readonly CharTokenizer Digit = new CharTokenizer(char.IsDigit, "Digit");
+
+		public static readonly CharTokenizer LetterOrDigit = new CharTokenizer(char.IsLetterOrDigit, "LetterOrDigit");
+
+		public static readonly CharTokenizer Whitespace = new CharTokenizer(char.IsWhiteSpace, "Whitespace");
+
+		public static readonly CharTokenizer LowSurrogate = new CharTokenizer(char.IsLowSurrogate, "LowSurrogate");
+
+		public static readonly CharTokenizer LineFeed = CharTokenizer.Any('\n', '\r');
 
 		public string Name { get; }
 
@@ -37,11 +56,6 @@ namespace Franca
 			}
 
 			return Token.Fail(span);
-		}
-
-		public static implicit operator CharTokenizer(char character)
-		{
-			return new CharTokenizer(character);
 		}
 
 		public static ChoiceTokenizer operator |(CharTokenizer left, ITokenizer right)

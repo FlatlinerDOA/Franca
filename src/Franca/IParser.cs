@@ -5,6 +5,6 @@ namespace Franca
 {
     public interface IParser<T>
 	{
-		Result<T> Parse(Token token);
+		IEnumerable<T> Parse(Token token);
 	}
 }
