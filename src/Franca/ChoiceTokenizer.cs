@@ -29,7 +29,7 @@ namespace Franca
 			return Token.Fail(span);
 		}
 
-		public override string ToString() => string.Join(" | ", this.Choices.Select(i => i.ToString()));
+		public override string ToString() => "( " + string.Join(" | ", this.Choices.Select(i => i.ToString())) + " )";
 
 		public static ChoiceTokenizer operator |(ChoiceTokenizer left, ChoiceTokenizer right)
 		{

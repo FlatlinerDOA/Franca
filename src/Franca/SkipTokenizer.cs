@@ -10,19 +10,25 @@ namespace Franca
     /// </summary>
     public sealed class SkipTokenizer : ITokenizer
     {
-        private readonly ITokenizer source;
 
         private readonly int skip;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="skip"></param>
         public SkipTokenizer(ITokenizer source, int skip = -1)
         {
-            this.source = source;
+            this.Input = source;
             this.skip = skip;
         }
 
+        public ITokenizer Input { get; }
+
         public Token Parse(ReadOnlySpan<char> span)
         {
-            var result = source.Parse(span);
+            var result = this.Input.Parse(span);
             if (result.IsSuccess)
             {
                 return Token.Success(
@@ -43,5 +49,7 @@ namespace Franca
         {
             return new ChoiceTokenizer(new[] { left, right });
         }
+
+        public override string ToString() => "!" + this.Input.ToString();
     }
 }

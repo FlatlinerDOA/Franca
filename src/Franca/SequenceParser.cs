@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Franca
 {
 	////public delegate IEnumerable<T> SingleSelector<out T>(Token token);
-
-	public sealed class SequenceParser<T> : IParser<T>
+	/*
+	public sealed class SequenceParser<T> : IParser<IReadOnlyList<T>>
 	{
 		private readonly Selector<T> selector;
 
@@ -27,17 +28,16 @@ namespace Franca
 
 		public IEnumerable<ITokenizer> Inputs { get; }
 
-		public IEnumerable<T> Parse(Token token)
+		public void Parse(ReadOnlySpan<char> source, ReadOnlySpanAction<char, IReadOnlyList<T>> observer)
 		{
 			var accumulated = new List<T>();
-			var remainderSpan = token.Span;
 			foreach (var tokenizer in this.Inputs)
 			{
-				var result = tokenizer.Parse(remainderSpan);
+				var result = tokenizer.Parse(source);
 				if (result.IsSuccess)
 				{
-					accumulated.Add(this.selector(result));
-					remainderSpan = result.Remaining;
+					accumulated.Add(this.selector(result.Span));
+					source = result.Remaining;
 				}
 				else
 				{
@@ -47,15 +47,15 @@ namespace Franca
 					}
 					else
 					{
-						return Enumerable.Empty<T>();
+						return;
 					}
 				}
 			}
 
-			return accumulated;
+			observer(source, accumulated);
 		}
 
-		public override string ToString() => string.Join(" ", this.Inputs.Select(i => i.ToString()));
+		public override string ToString() => string.Join(" + ", this.Inputs.Select(i => i.ToString()));
 
 		public static SequenceParser<T> operator +(SequenceParser<T> left, SequenceParser<T> right)
 		{
@@ -66,5 +66,5 @@ namespace Franca
 		{
 			return new SequenceParser<T>(left.Inputs.Append(right), left.selector);
 		}
-	}
+	}*/
 }

@@ -20,6 +20,9 @@ namespace Franca.UnitTests
 		[TestMethod]
 		public void EverythingElse() 
 		{
+			// Observable Action<Action<T>> Subscribe
+			// Observer Action<Token> OnNextOrCompleted
+
 			////var x = new CharParser<char>("ABC".AsMemory(), () => new[] { 'Y' });
 			////var y = x.Parse("ABC".AsSpan());
 			//var csv = CharTokenizer.LetterOrDigit.Many() + new CharTokenizer(',');

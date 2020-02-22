@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Franca.UnitTests
@@ -11,7 +12,7 @@ namespace Franca.UnitTests
         public static readonly ITokenizer Digits = new RepeatTokenizer(CharTokenizer.Digit);
 
         public static readonly IParser<int> DigitsToInteger = from digit in CharTokenizer.Digit.Many()
-                                                              select int.Parse(digit.Span);
+                                                              select int.Parse(digit);
 
         public static readonly ITokenizer UpToFiveDigits = new RepeatTokenizer(CharTokenizer.Digit, 1, 5);
 
@@ -32,7 +33,7 @@ namespace Franca.UnitTests
         public void RepeatMatchesThreeCorrectChars() => Assert.AreEqual("123", new string(Digits.Parse("123").Span));
 
         [TestMethod]
-        public void DigitsToIntegerMapsCorrectly() => Assert.AreEqual(123, DigitsToInteger.Parse("123"));
+        public void DigitsToIntegerMapsCorrectly() => Assert.AreEqual(123, DigitsToInteger.SelectMany("123").First());
 
         [TestMethod]
         public void UpToFiveDigitsMatchesFiveWithTwoRemaining() 

@@ -51,19 +51,9 @@ namespace Franca
 			return accumulated;
 		}
 
-		public override string ToString() => string.Join(" + ", this.Inputs.Select(i => i.ToString()));
-
-		public static ChoiceTokenizer operator |(SequenceTokenizer left, SequenceTokenizer right)
-		{
-			return new ChoiceTokenizer(new[] { left, right });
-		}
+		public override string ToString() => "( " + string.Join(" + ", this.Inputs.Select(i => i.ToString())) + " )";
 
 		public static ChoiceTokenizer operator |(SequenceTokenizer left, ITokenizer right)
-		{
-			return new ChoiceTokenizer(new[] { left, right });
-		}
-
-		public static ChoiceTokenizer operator |(ITokenizer left, SequenceTokenizer right)
 		{
 			return new ChoiceTokenizer(new[] { left, right });
 		}
@@ -77,11 +67,5 @@ namespace Franca
 		{
 			return new SequenceTokenizer(left.Inputs.Append(right));
 		}
-
-		public static SequenceTokenizer operator +(ITokenizer left, SequenceTokenizer right)
-		{
-			return new SequenceTokenizer(new[] { left, right });
-		}
-
 	}
 }

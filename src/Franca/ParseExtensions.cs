@@ -15,9 +15,25 @@ namespace Franca
 			}
 		}*/
 
-		public static T Parse<T>(this IParser<T> parser, ReadOnlySpan<char> span)
+		public static IParser<T> DelimitedBy<T>(this ITokenizer tokenizer, ITokenizer delimiter, Selector<T> selector)
 		{
-			return parser.Parse(Token.Success(span, span.Length)).Single();
+			return new BracketedParser<T>(tokenizer, delimiter, selector);
+		}
+
+		public static IParser<IReadOnlyList<T>> DelimitedBy<T>(this IParser<T> tokenizer, ITokenizer delimiter, Selector<T> selector)
+		{
+			return new RepeatParser<T>(new BracketedParser<T>(tokenizer, delimiter));
+		}
+
+		public static IEnumerable<T> SelectMany<T>(this IParser<T> parser, ReadOnlySpan<char> span)
+		{ 
+			var results = new List<T>(); 
+			var remaining = parser.Parse(span, (s, r) => results.Add(r));
+			while (remaining.IsSuccess)
+			{
+				remaining = parser.Parse(remaining.Span, (s, r) => results.Add(r));
+			}
+			return results;
 		}
 
 		public static SkipTokenizer Skip(this ITokenizer tokenizer)
@@ -30,27 +46,33 @@ namespace Franca
 			return new SkipTokenizer(tokenizer, 0);
 		}
 
-		public static ReturnParser<T> Return<T>(this ITokenizer tokenizer, T returnValue)
+		public static SelectParser<T> Return<T>(this ITokenizer tokenizer, T returnValue)
 		{
-			return new ReturnParser<T>(tokenizer, _ => returnValue);
+			return new SelectParser<T>(tokenizer, _ => returnValue);
 		}
 
-		public static ReturnParser<string> Text(this ITokenizer source)
+		public static SelectParser<string> Text(this ITokenizer source)
 		{
-			return new ReturnParser<string>(
-				source, 
-				token => new string(token.Span));
+			return new SelectParser<string>(source, token => new string(token));
 		}
 
-		public static ReturnParser<T> Select<T>(this ITokenizer source, Selector<T> selector)
+		public static SelectParser<T> Select<T>(this ITokenizer source, Selector<T> selector)
 		{
-			return new ReturnParser<T>(source, selector);
+			return new SelectParser<T>(source, selector);
 		}
-
 
 		public static RepeatTokenizer Optional(this ITokenizer source)
 		{
 			return new RepeatTokenizer(source, 0, 2);
+		}
+
+		public static IParser<IReadOnlyList<T>> SelectMany<T>(this IParser<T> source, Func<IParser<T>, ITokenizer> selector, Func<IParser<T>, ITokenizer, IParser<T>> resultSelector)
+		{
+			return null;
+			//selector()
+			//return new RepeatParser<T>(;
+			////Selector<IEnumerable<T>> selectorx = e => source.Parse(Token.Success(e.Span, e.Length));
+			////return new SequenceParser<T>(source.SelectMany(e => selector(source.Parse)), selectorx);
 		}
 
 		public static IParser<T> SelectMany<T>(this ITokenizer source, Func<ITokenizer, ITokenizer> selector, Func<ITokenizer, IParser<T>> resultSelector)
@@ -62,7 +84,6 @@ namespace Franca
 		{
 			return resultSelector(source, selector(source));
 		}
-
 
 		public static SequenceTokenizer SelectMany(this ITokenizer source, Func<ITokenizer, ITokenizer> selector)
 		{ 		

@@ -1,37 +1,66 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Franca
 {
-	public sealed class RepeatParser<T> : IParser<T>
+	/// <summary>
+	/// Repeatedly calls a tokenizer and accumulates the results, finally outputing the accumulation upon failure to parse
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public sealed class RepeatParser<T> : IParser<IReadOnlyList<T>>
 	{
-		private readonly Selector<T> selector;
+		private readonly int count;
 
-		public RepeatParser(ITokenizer input, Selector<T> selector, int min = 0, int maxExclusive = int.MaxValue)
+		public RepeatParser(ITokenizer input, Selector<T> selector, int count = int.MaxValue)
+		{
+			this.Input = new SelectParser<T>(input, selector);
+			this.count = count;
+		}
+
+		public RepeatParser(IParser<T> input, int count = int.MaxValue)
 		{
 			this.Input = input;
-			this.selector = selector;
+			this.count = count;
 		}
 
-		public ITokenizer Input { get; }
+		public IParser<T> Input { get; }
 
-		public IEnumerable<T> Parse(Token token)
+		public Token Parse(ReadOnlySpan<char> source, ReadOnlySpanAction<char, IReadOnlyList<T>> observer)
 		{
 			var accumulated = new List<T>();
-
-			var remainderSpan = token.Span;
-			
-			var resultToken = this.Input.Parse(remainderSpan);
-			while (resultToken.IsSuccess)
+			var result = this.Input.Parse(
+				source,
+				(s, t) =>
+				{
+					accumulated.Add(t);
+				});
+			while (result.IsSuccess)
 			{
-				accumulated.Add(this.selector(resultToken));
-				resultToken = this.Input.Parse(resultToken.Remaining);
+				if (accumulated.Count >= this.count)
+				{
+					break;
+				}
+
+				source = result.Remaining;
+				result = this.Input.Parse(
+				   source,
+				   (s, t) =>
+				   {
+					   accumulated.Add(t);
+				   });
 			}
 
-			return accumulated;
+			if (!result.IsSuccess)
+			{
+				return Token.Fail(source);
+			}
+
+			observer(source, accumulated);
+			return result;
 		}
 
-		public override string ToString() => this.Input.ToString();
+		public override string ToString() => "{ " + this.Input.ToString() + " }";
 	}
 }

@@ -14,6 +14,12 @@ namespace Franca
 			this.Name = "'" + match + "'";
 		}
 
+		public CharTokenizer(char match, string name)
+		{
+			this.match = c => c == match;
+			this.Name = "<" + name + ">";
+		}
+
 		public CharTokenizer(Func<char, bool> match, string name)
 		{
 			this.match = match;
@@ -36,15 +42,27 @@ namespace Franca
 			return new CharTokenizer(c => Array.IndexOf(anyChar, c) != -1, sb.ToString());
 		}
 
+		/// <summary>
+		/// Single character digits 0 - 9
+		/// </summary>
 		public static readonly CharTokenizer Digit = new CharTokenizer(char.IsDigit, "Digit");
 
+		/// <summary>
+		/// Any single character unicode letter or digits.
+		/// </summary>
 		public static readonly CharTokenizer LetterOrDigit = new CharTokenizer(char.IsLetterOrDigit, "LetterOrDigit");
 
+		/// <summary>
+		/// Any whitespace including spaces, tabs, line feeds and carriage returns.
+		/// </summary>
 		public static readonly CharTokenizer Whitespace = new CharTokenizer(char.IsWhiteSpace, "Whitespace");
 
 		public static readonly CharTokenizer LowSurrogate = new CharTokenizer(char.IsLowSurrogate, "LowSurrogate");
 
-		public static readonly CharTokenizer LineFeed = CharTokenizer.Any('\n', '\r');
+		/// <summary>
+		/// Any lf or crlf
+		/// </summary>
+		public static readonly ChoiceTokenizer SingleLineFeed = new CharTokenizer('\n', "LF") | (new CharTokenizer('\r', "CR") + new CharTokenizer('\n', "LF"));
 
 		public string Name { get; }
 

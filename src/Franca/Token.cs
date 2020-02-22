@@ -26,14 +26,24 @@ namespace Franca
 			this.Base.Slice(0, this.Length) :
 			ReadOnlySpan<char>.Empty;
 
-		public static Token Success(ReadOnlySpan<char> span, int length)
+		public static Token Success(ReadOnlySpan<char> baseSpan, int length)
 		{
-			return new Token(span, length);
+			return new Token(baseSpan, length);
 		}
 
-		public static Token Fail(ReadOnlySpan<char> span)
+		/// <summary>
+		/// Returns a successful token with the remaining content.
+		/// </summary>
+		/// <param name="remaining">The source span</param>
+		/// <returns>A success token for the source space</returns>
+		public static Token Success(ReadOnlySpan<char> remaining)
 		{
-			return new Token(span, -1);
+			return new Token(remaining, remaining.Length);
+		}
+
+		public static Token Fail(ReadOnlySpan<char> baseSpan)
+		{
+			return new Token(baseSpan, -1);
 		}
 
 		public static Token operator +(Token left, Token right) 
