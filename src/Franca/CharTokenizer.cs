@@ -39,7 +39,7 @@ namespace Franca
 				sb.Append('\'').Append(m).Append('\'');
 			}
 
-			return new CharTokenizer(c => Array.IndexOf(anyChar, c) != -1, sb.ToString());
+			return new CharTokenizer(c => anyChar.AsSpan().IndexOf(c) != -1, sb.ToString());
 		}
 
 		/// <summary>
@@ -85,6 +85,8 @@ namespace Franca
 		{
 			return new SequenceTokenizer(new[] { left, right });
 		}
+
+		public static implicit operator CharTokenizer(char match) => new CharTokenizer(match);
 
 		public override string ToString() => this.Name;
 	}
