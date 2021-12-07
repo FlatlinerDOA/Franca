@@ -29,7 +29,7 @@ namespace Franca
 
 		public Token Parse(ReadOnlySpan<char> source, ReadOnlySpanAction<char, IReadOnlyList<T>> observer)
 		{
-			var accumulated = new List<T>();
+			var accumulated = this.count == int.MaxValue ? new List<T>() : new List<T>(this.count);
 			var result = this.Input.Parse(
 				source,
 				(s, t) =>
@@ -62,5 +62,10 @@ namespace Franca
 		}
 
 		public override string ToString() => "{ " + this.Input.ToString() + " }";
+
+        public bool TryParseBuffer(in ReadOnlySequence<char> buffer)
+        {
+            return this.Parse(buffer.FirstSpan, (_, __) => { }).IsSuccess;
+        }
 	}
 }

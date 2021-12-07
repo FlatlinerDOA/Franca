@@ -18,5 +18,15 @@ namespace Franca.UnitTests
 
         [TestMethod]
         public void SimpleParseOfTwoCellsTwoRowsSecondCell() => Assert.That.SequenceEquals(new[] { "TUB", "QWE" }, CsvParser.RowParser.SelectMany("ABC,XYZ\nTUB,QWE").Skip(1).First());
+
+        [TestMethod]
+        public void ParseWithHeaders() => Assert.That.SequenceEquals(new[] { "XYZ", "QWE" }, CsvParser.CsvWithHeaders("ABC,XYZ\nTUB,QWE".AsMemory()).First().Values);
+
+        [TestMethod]
+        public void CanParseInfiniteCsv()
+        {
+            // var stream = new MemoryStream(100000);
+            // System.Buffers.BuffersExtensions.CopyTo
+        }
     }
 }

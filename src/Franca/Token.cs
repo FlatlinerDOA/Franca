@@ -2,27 +2,33 @@
 
 namespace Franca
 {
-    public ref struct Token
+	/// <summary>
+	/// A Token is merely a pointer to a span of remaining characters from an input, and a consuming length.
+	/// </summary>
+    public readonly ref struct Token
 	{
-		private int length;
+    	/// <summary>
+		/// The length of characters consumed by this token. -1 denotes a failed parse.
+		/// </summary>
+		private readonly int length;
 
-		private Token(ReadOnlySpan<char> baseSpan, int length)
+		private readonly ReadOnlySpan<char> baseSpan;
+
+		private Token(in ReadOnlySpan<char> baseSpan, int length)
 		{
-			this.Base = baseSpan;
+			this.baseSpan = baseSpan;
 			this.length = length;
 		}
 
-		public ReadOnlySpan<char> Base;
+		public readonly ReadOnlySpan<char> Base => this.baseSpan;
 
-		public int Length => this.length == -1 ? 0 : this.length;
+		public readonly int Length => this.length == -1 ? 0 : this.length;
 
-		////public bool IsEmpty => this.length < 1;
+		public readonly bool IsSuccess => this.length != -1;
 
-		public bool IsSuccess => this.length != -1;
+		public readonly ReadOnlySpan<char> Remaining => this.baseSpan.Slice(this.Length);
 
-		public ReadOnlySpan<char> Remaining => this.Base.Slice(this.Length);
-
-		public ReadOnlySpan<char> Span => this.Length > 0 ? 
+		public readonly ReadOnlySpan<char> Span => this.Length > 0 ? 
 			this.Base.Slice(0, this.Length) :
 			ReadOnlySpan<char>.Empty;
 

@@ -15,12 +15,12 @@ namespace Franca
 			}
 		}*/
 
-		public static IParser<T> DelimitedBy<T>(this ITokenizer tokenizer, ITokenizer delimiter, Selector<T> selector)
+		public static BracketedParser<T> DelimitedBy<T>(this ITokenizer tokenizer, ITokenizer delimiter, Selector<T> selector)
 		{
 			return new BracketedParser<T>(tokenizer, delimiter, selector);
 		}
 
-		public static IParser<IReadOnlyList<T>> DelimitedBy<T>(this IParser<T> tokenizer, ITokenizer delimiter, Selector<T> selector)
+		public static RepeatParser<T> DelimitedBy<T>(this IParser<T> tokenizer, ITokenizer delimiter, Selector<T> selector)
 		{
 			return new RepeatParser<T>(new BracketedParser<T>(tokenizer, delimiter));
 		}

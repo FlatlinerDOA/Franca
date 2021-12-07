@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipelines;
+using System.Threading;
 using System.Linq;
 using System.Text;
 
@@ -7,13 +9,13 @@ namespace Franca.Parsers
 {
     public sealed class CsvParser
     {
-        public static readonly CharTokenizer Comma = new CharTokenizer(',');
+        public static readonly CharTokenizer Comma = ',';
 
-        public static readonly CharTokenizer Tab = new CharTokenizer('\t');
+        public static readonly CharTokenizer Tab = '\t';
 
-        public static readonly CharTokenizer DoubleQuote = new CharTokenizer('"');
+        public static readonly CharTokenizer DoubleQuote = '"';
 
-        public static readonly CharTokenizer SingleQuote = new CharTokenizer('\'');
+        public static readonly CharTokenizer SingleQuote = '\'';
 
         public static readonly CharTokenizer Symbols = CharTokenizer.Any('|', '(', ')', '*', '&');
 
@@ -35,17 +37,73 @@ namespace Franca.Parsers
 
         public static readonly IParser<string> CellParser = Cell.DelimitedBy(Comma | RowDelimiter.Until(), cell => new string(cell));
 
-        public static readonly IParser<IReadOnlyList<string>> RowParser = CellParser.DelimitedBy(RowDelimiter, cell => new string(cell));
+        public static readonly RepeatParser<string> RowParser = CellParser.DelimitedBy(RowDelimiter, cell => new string(cell));
         
-        public IEnumerable<IReadOnlyDictionary<string, string>> CsvWithHeaders(ReadOnlySpan<char> rows)
+        public static IEnumerable<IReadOnlyDictionary<string, string>> CsvWithHeaders(ReadOnlyMemory<char> rows)
         {
-            yield break;
+            IReadOnlyList<string> headers = Array.Empty<string>();
+            foreach (var row in RowParser.SelectMany(rows.Span))
+            {
+                var dictionary = new Dictionary<string, string>(headers.Count);
+                for (int col = 0; col < Math.Min(headers.Count, row.Count); col++)
+                {
+                    dictionary[headers[col]] = row[col];
+                }
+
+                yield return dictionary;
+            }
         }
 
-        public IEnumerable<IReadOnlyList<string>> CsvNoHeaders(ReadOnlySpan<char> rows)
+        public static async IAsyncEnumerable<IReadOnlyDictionary<string, string>> CsvWithHeadersAsync(PipeReader reader, CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (true)
+                {
+                    var result = await reader.ReadAsync(cancellationToken);
+                    var buffer = result.Buffer;
+
+                    try
+                    {
+                        // Process all messages from the buffer, modifying the input buffer on each
+                        // iteration.
+                        IReadOnlyDictionary<string, string> d = null;
+                        while (RowParser.TryParseBuffer(Encoding.UTF8.GetChars(buffer), r => {
+                            d = r;
+                        }))
+                        {
+                            yield return d;
+                        }
+
+                        // There's no more data to be processed.
+                        if (result.IsCompleted)
+                        {
+                            if (buffer.Length > 0)
+                            {
+                                // The message is incomplete and there's no more data to process.
+                                throw new Exception($"Incomplete CSV at offset {buffer.Length}");
+                            }
+                            
+                            break;
+                        }
+                    }
+                    finally
+                    {
+                        // Since all messages in the buffer are being processed, you can use the
+                        // remaining buffer's Start and End position to determine consumed and examined.
+                        reader.AdvanceTo(buffer.Start, buffer.End);
+                    }
+                }
+            }
+            finally
+            {
+                await reader.CompleteAsync();
+	        }
+        }
+
+        public static IEnumerable<IReadOnlyList<string>> CsvNoHeaders(ReadOnlySpan<char> rows)
         {
             return RowParser.SelectMany(rows);
         }
-
     }
 }

@@ -2,11 +2,12 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Franca
 {
     /// <summary>
-    /// Can be used to encapsulate something that has an optional start token and an end token.
+    /// Can be used to encapsulate something that has an optional start token and/or an end token.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class BracketedParser<T> : IParser<T>
@@ -45,7 +46,7 @@ namespace Franca
 
         public Token Parse(ReadOnlySpan<char> source, ReadOnlySpanAction<char, T> observer)
         {
-            if (this.Start != null ) 
+            if (this.Start != null) 
             {   
                 var open = this.Start.Parse(source);
                 if (open.IsSuccess)
@@ -84,5 +85,11 @@ namespace Franca
 
         public override string ToString() =>
             string.Join(' ', this.Start?.ToString(), this.Content.ToString(), this.End?.ToString());
+
+        public bool TryParseBuffer(in ReadOnlySequence<char> buffer)
+        {
+            // TODO: Add an overload that is more efficient.
+            return this.Parse(buffer.FirstSpan, (_, __) => { }).IsSuccess;
+        }
     }
 }
