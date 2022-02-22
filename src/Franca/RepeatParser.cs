@@ -27,18 +27,20 @@ public sealed class RepeatParser<T> : IParser<IReadOnlyList<T>>
 
 	public IParser<T> Input { get; }
 
-	public Token Parse(ReadOnlySpan<char> source, ReadOnlySpanAction<char, IReadOnlyList<T>> observer)
+	public Token Parse(ReadOnlySpan<char> source, ParserObserver<T> observer)
 	{
-		var accumulated = this.count == int.MaxValue ? new List<T>() : new List<T>(this.count);
+		int counter = 0;
 		var result = this.Input.Parse(
 			source,
 			(s, t) =>
 			{
-				accumulated.Add(t);
+				counter++;
+				observer(s, t);
+				return s;
 			});
 		while (result.IsSuccess)
 		{
-			if (accumulated.Count >= this.count)
+			if (counter >= this.count)
 			{
 				break;
 			}
@@ -48,7 +50,9 @@ public sealed class RepeatParser<T> : IParser<IReadOnlyList<T>>
 				source,
 				(s, t) =>
 				{
-					accumulated.Add(t);
+					counter++;
+					observer(s, t);
+					return s;
 				});
 		}
 
@@ -57,14 +61,8 @@ public sealed class RepeatParser<T> : IParser<IReadOnlyList<T>>
 			return Token.Fail(source);
 		}
 
-		observer(source, accumulated);
 		return result;
 	}
 
 	public override string ToString() => "{ " + this.Input.ToString() + " }";
-
-	public bool TryParseBuffer(in ReadOnlySequence<char> buffer)
-	{
-		return this.Parse(buffer.FirstSpan, (_, __) => { }).IsSuccess;
-	}
 }

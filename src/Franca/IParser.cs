@@ -19,5 +19,5 @@ public interface IParser<T>
 	/// and the span it was based on (which allows for contextual nesting)
 	/// </param>
 	/// <returns>A token with a boolean indicating success or failure, and a span of the remaining unprocessed characters.</returns>
-	Token Parse(ReadOnlySpan<char> source, ReadOnlySpanAction<char, T> observer);
+	Token Parse(ReadOnlySpan<char> source, ParserObserver<T> observer);
 }

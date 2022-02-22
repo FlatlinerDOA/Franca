@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Pipelines;
+using System.Linq;
 using System.Threading;
 using System.Text;
 using System.Runtime.CompilerServices;
@@ -42,10 +43,10 @@ public sealed class CsvParser
     public static IEnumerable<IReadOnlyDictionary<string, string>> CsvWithHeaders(ReadOnlyMemory<char> rows)
     {
         IReadOnlyList<string> headers = Array.Empty<string>();
-        foreach (var row in RowParser.SelectMany(rows.Span))
+        foreach (var row in RowParser.ToList(rows.Span))
         {
             var dictionary = new Dictionary<string, string>(headers.Count);
-            for (int col = 0; col < Math.Min(headers.Count, row.Count); col++)
+            for (int col = 0; col < headers.Count; col++)
             {
                 dictionary[headers[col]] = row[col];
             }

@@ -24,13 +24,26 @@ public static class ParseExtensions
 		return new RepeatParser<T>(new BracketedParser<T>(tokenizer, delimiter));
 	}
 
-	public static IEnumerable<T> SelectMany<T>(this IParser<T> parser, ReadOnlySpan<char> span)
+	public static ITokenizer End(this ITokenizer tokenizer)
+	{
+		return new SequenceTokenizer(new[] { tokenizer, EndTokenizer.EOF });
+	}
+	
+	public static IReadOnlyList<T> ToList<T>(this IParser<T> parser, ReadOnlySpan<char> span)
 	{ 
 		var results = new List<T>(); 
-		var remaining = parser.Parse(span, (s, r) => results.Add(r));
+		var remaining = parser.Parse(span, (s, r) =>
+		{
+			results.Add(r);
+			return s;
+		});
 		while (remaining.IsSuccess)
 		{
-			remaining = parser.Parse(remaining.Span, (s, r) => results.Add(r));
+			remaining = parser.Parse(remaining.Span, (s, r) =>
+			{
+				results.Add(r);
+				return s;
+			});
 		}
 		return results;
 	}

@@ -22,20 +22,15 @@ public sealed class SelectParser<T> : IParser<T>
 		this.selector = selector;
 	}
 
-	public Token Parse(ReadOnlySpan<char> sequence, ReadOnlySpanAction<char, T> observer)
+	public Token Parse(ReadOnlySpan<char> sequence, ParserObserver<T> observer)
 	{
 		var result = input.Parse(sequence);
 		if (result.IsSuccess)
 		{
-			observer(result.Span, this.selector(result.Span));
-			sequence = result.Remaining;
+			return observer(Token.Success(result.Remaining), this.selector(result.Span));
 		} 
-		else
-		{
-			return Token.Fail(sequence);
-		}
 
-		return Token.Success(result.Remaining);
+		return Token.Fail(sequence);
 	}
 
 	public override string ToString() => "<"+ typeof(T).Name + "> = " + this.input.ToString();
