@@ -4,6 +4,7 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Linq;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace Franca.Parsers
 {
@@ -54,10 +55,11 @@ namespace Franca.Parsers
             }
         }
 
-        public static async IAsyncEnumerable<IReadOnlyDictionary<string, string>> CsvWithHeadersAsync(PipeReader reader, CancellationToken cancellationToken)
+        public static async IAsyncEnumerable<IReadOnlyDictionary<string, string>> CsvWithHeadersAsync(PipeReader reader, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             try
             {
+                var encoding = Encoding.UTF8;
                 while (true)
                 {
                     var result = await reader.ReadAsync(cancellationToken);
@@ -67,13 +69,13 @@ namespace Franca.Parsers
                     {
                         // Process all messages from the buffer, modifying the input buffer on each
                         // iteration.
-                        IReadOnlyDictionary<string, string> d = null;
-                        while (RowParser.TryParseBuffer(Encoding.UTF8.GetChars(buffer), r => {
-                            d = r;
-                        }))
-                        {
-                            yield return d;
-                        }
+                        //IReadOnlyDictionary<string, string> d = null;
+                        //while (RowParser.TryParseBuffer(encoding.GetChars(buffer), r => {
+                        //    d = r;
+                        //}))
+                        //{
+                        //    yield return d;
+                        //}
 
                         // There's no more data to be processed.
                         if (result.IsCompleted)
@@ -83,8 +85,9 @@ namespace Franca.Parsers
                                 // The message is incomplete and there's no more data to process.
                                 throw new Exception($"Incomplete CSV at offset {buffer.Length}");
                             }
-                            
-                            break;
+
+                            // TODO: Finish sequence parser
+                            yield break;
                         }
                     }
                     finally
