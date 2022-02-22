@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Franca
+namespace Franca;
+
+public interface ITokenizer
 {
-    public interface ITokenizer
-	{
-		Token Parse(ReadOnlySpan<char> span);
-	}
+	Token Parse(ReadOnlySpan<char> span);
 }

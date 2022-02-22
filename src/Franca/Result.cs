@@ -1,24 +1,23 @@
 ﻿using System;
 
-namespace Franca
+namespace Franca;
+
+public struct Result<T>
 {
-    public struct Result<T>
+	public static readonly Result<T> Fail = new Result<T>();
+
+	public Result(T value)
 	{
-		public static readonly Result<T> Fail = new Result<T>();
+		this.Value = value;
+		this.IsSuccess = true;
+	}
 
-		public Result(T value)
-		{
-			this.Value = value;
-			this.IsSuccess = true;
-		}
+	public bool IsSuccess;
 
-		public bool IsSuccess;
+	public T Value;
 
-		public T Value;
-
-		public static Result<T> Success(T value)
-		{
-			return new Result<T>(value);
-		}
+	public static Result<T> Success(T value)
+	{
+		return new Result<T>(value);
 	}
 }

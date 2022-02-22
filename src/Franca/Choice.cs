@@ -2,42 +2,41 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Franca
-{
- //   public sealed class Choice<T> : IParser<T>
-	//{
-	//	public Choice(IEnumerable<IParser<T>> choices)
-	//	{
-	//		this.Choices = choices;
-	//	}
+namespace Franca;
 
-	//	public IEnumerable<IParser<T>> Choices { get; }
+//   public sealed class Choice<T> : IParser<T>
+//{
+//	public Choice(IEnumerable<IParser<T>> choices)
+//	{
+//		this.Choices = choices;
+//	}
 
-	//	public Token SelectMany(ReadOnlySpan<char> span)
-	//	{
-	//		var ambiguous = new List<ITokenizer>();
-	//		foreach (var parser in this.Choices)
-	//		{
-	//			var result = parser.SelectMany(span);
-	//			if (result.IsSuccess)
-	//			{
-	//				return result;
-	//			}
-	//		}
+//	public IEnumerable<IParser<T>> Choices { get; }
 
-	//		return Token.Fail(span);
-	//	}
+//	public Token SelectMany(ReadOnlySpan<char> span)
+//	{
+//		var ambiguous = new List<ITokenizer>();
+//		foreach (var parser in this.Choices)
+//		{
+//			var result = parser.SelectMany(span);
+//			if (result.IsSuccess)
+//			{
+//				return result;
+//			}
+//		}
 
-	//	public override string ToString() => string.Join(" | ", this.Choices.Select(i => i.ToString()));
+//		return Token.Fail(span);
+//	}
 
-	//	public static Choice<T> operator |(Choice<T> left, IParser<T> right)
-	//	{
-	//		return new Choice<T>(left.Choices.Append(right));
-	//	}
+//	public override string ToString() => string.Join(" | ", this.Choices.Select(i => i.ToString()));
 
-	//	public static Choice<T> operator |(IParser<T> left, Choice<T> right)
-	//	{
-	//		return new Choice<T>(new[] { left }.Concat(right.Choices));
-	//	}
-	//}
-}
+//	public static Choice<T> operator |(Choice<T> left, IParser<T> right)
+//	{
+//		return new Choice<T>(left.Choices.Append(right));
+//	}
+
+//	public static Choice<T> operator |(IParser<T> left, Choice<T> right)
+//	{
+//		return new Choice<T>(new[] { left }.Concat(right.Choices));
+//	}
+//}

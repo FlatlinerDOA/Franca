@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Franca.Benchmarks
+namespace Franca.Benchmarks;
+
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
+        Console.WriteLine("Hello World!");
     }
 }

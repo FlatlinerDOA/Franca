@@ -1,16 +1,15 @@
-﻿namespace Franca
+﻿using System;
+
+namespace Franca;
+
+public sealed class EndTokenizer : ITokenizer
 {
-    using System;
+    public static EndTokenizer EOF = new EndTokenizer();
 
-    public sealed class EndTokenizer : ITokenizer
+    public Token Parse(ReadOnlySpan<char> span)
     {
-        public static EndTokenizer EOF = new EndTokenizer();
-
-        public Token Parse(ReadOnlySpan<char> span)
-        {
-            return span.IsEmpty ? Token.Success(span) : Token.Fail(span);
-        }
-
-        public override string ToString() => "<EOF>";
+        return span.IsEmpty ? Token.Success(span) : Token.Fail(span);
     }
+
+    public override string ToString() => "<EOF>";
 }
