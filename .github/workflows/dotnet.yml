@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./src/Franca/Franca.csproj
     - name: Build
       run: dotnet build ./src/Franca/Franca.csproj --no-restore
     - name: Test
